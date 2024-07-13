@@ -1,0 +1,307 @@
+module silab-layer-3-topology {
+  yang-version 1;
+  namespace "urn:TBD:params:xml:ns:yang:silab-layer-3-topology";
+  prefix l3;
+
+  import ietf-network {
+    prefix nw;
+  }
+
+  import ietf-network-topology {
+    prefix nt;
+  }
+
+  import ietf-yang-types {
+    prefix yang;
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  organization "Fraunhofer IOSB/Silab";
+  contact "joerg.kippe@iosb.fraunhofer.de";
+
+  description
+    "This module defines a basic model for
+          the layer-3 topology of a network";
+
+  revision "2015-12-02" {
+    description "Initial revision";
+    reference "none";
+  }
+
+  identity interface-type {
+    description
+      "Base identity from which specific interface types are
+          derived.";
+  }
+
+  feature if-mib {
+    description
+      "This feature indicates that the device implements
+          the IF-MIB.";
+    reference
+      "RFC 2863: The Interfaces Group MIB";
+  }
+
+  feature ipv4-non-contiguous-netmasks {
+    description
+      "Indicates support for configuring non-contiguous
+      subnet masks.";
+  }
+
+  feature ipv6-privacy-autoconf {
+    description
+      "Indicates support for Privacy Extensions for Stateless Address
+      Autoconfiguration in IPv6.";
+    reference
+      "RFC 4941: Privacy Extensions for Stateless Address
+                Autoconfiguration in IPv6";
+  }
+
+
+  typedef tp-id {
+    type inet:uri;
+    description
+      "An identifier for termination points on a node.
+        The identifier may be opaque.
+        The identifier SHOULD be chosen such that the same TP in a
+        real network topology will always be identified through the
+        same identifier, even if the model is instantiated in
+        separate datastores. An implementation MAY choose to capture
+        semantics in the identifier, for example to indicate the type
+        of TP and/or the type of node and topology that the TP is a
+        part of.";
+  }
+
+  /*
+   * Groupings
+   */
+
+
+  grouping l3-network-type {
+    description "Identify the topology type to be L3.";
+    container l3-network {
+      presence "indicates L3 Network";
+      description
+	"The presence of the container node indicates
+            L3 Topology";
+    }
+  }
+  grouping l3-network-attributes {
+    description "L3 Topology scope attributes";
+    container l3-network-attributes {
+      description "Containing L3 network attributes";
+      leaf name {
+	type string;
+	description "Name of the L3 network";
+      }
+      leaf ip {
+        type inet:ipv4-address-no-zone;
+        description "IPv4 of the Network";
+      }
+      leaf netmask {
+           if-feature ipv4-non-contiguous-netmasks;
+           type yang:dotted-quad;
+           description
+          "The subnet specified as a netmask.";
+         }
+    }
+  }
+
+  grouping l3-node-attributes {
+    description "L3 node attributes";
+    container l3-node-attributes {
+      description "Containing L3 node attributes";
+      leaf name {
+	type string;
+	description "Node name";
+      }
+      leaf timestamp {
+            type uint32;
+            description "Timestamp of the Node";
+        }
+      leaf description {
+	type string;
+	description "Node description";
+      }
+      leaf pseudonode {
+	type boolean;
+	default false;
+	description "This node is a pseudonode, representing the multi-access network";
+      }
+    }
+  }  // grouping l3-node-attributes
+
+  grouping l3-link-attributes {
+    description "L3 link attributes";
+    container l3-link-attributes {
+      description "Containing L3 link attributes";
+      leaf name {
+	type string;
+	description "Link name";
+      }
+    }
+  } // grouping l3-link-attributes
+
+  grouping l3-termination-point-attributes {
+    description "L3 termination point attributes";
+    container l3-termination-point-attributes {
+      description "Containing L3 TP attributes";
+      leaf description {
+	       type string;
+	       description "Port description";
+      }
+
+      container ipv4 {
+	       presence
+	       "Enables IPv4 unless the 'enabled' leaf
+        (which defaults to 'true') is set to 'false'";
+	       description
+	       "Parameters for the IPv4 address family.";
+	       leaf enabled {
+	           type boolean;
+	           default true;
+	           description
+	           "Controls whether IPv4 is enabled or disabled on this
+          interface.  When IPv4 is enabled, this interface is
+          connected to an IPv4 stack, and the interface can send
+          and receive IPv4 packets.";
+	       }
+
+	       leaf ip {
+	         type inet:ipv4-address-no-zone;
+	         description
+	         "The IPv4 address on the interface.";
+	       }
+
+	       leaf netmask {
+	         if-feature ipv4-non-contiguous-netmasks;
+	         type yang:dotted-quad;
+	         description
+	       	      "The subnet specified as a netmask.";
+	       }
+	     }
+      }
+    }
+  
+
+  /*** grouping of network/node/link/tp leaf-refs ***/
+
+  grouping network-ref {
+    description
+      "Grouping for an absolute reference to a network topology
+         instance.";
+    leaf network-ref {
+      type leafref {
+	path "/nw:network/nw:network-id";
+      }
+      description
+	"An absolute reference to a network topology instance.";
+    }
+  }
+ 
+
+  grouping link-ref {
+    description
+      "Grouping for an absolute reference to a link instance.";
+    uses network-ref;
+    leaf link-ref {
+      type leafref {
+	path "/nw:network"
+	  +"[nw:network-id = current()/../network-ref]"
+	  +"/nt:link/nt:link-id";
+      }
+      description
+	"An absolute reference to a link instance.";
+    }
+  }
+
+  grouping node-ref {
+    description
+      "Grouping for an absolute reference to a node instance.";
+    uses network-ref;
+    leaf node-ref {
+      type leafref {
+	path "/nw:network"
+	  +"[nw:network-id = current()/../network-ref]"
+	  +"/nw:node/nw:node-id";
+      }
+      description
+	"An absolute reference to a node instance.";
+    }
+  }
+
+  grouping tp-ref {
+    description
+      "Grouping for an absolute reference to a termination point.";
+    uses node-ref;
+    leaf tp-ref {
+      type leafref {
+	path "/nw:network"
+	  +"[nw:network-id = current()/../network-ref]"
+	  +"/nw:node[nw:node-id = current()/../node-ref]"
+	  +"/nt:termination-point/nt:tp-id";
+      }
+      description
+	"Grouping for an absolute reference to a TP.";
+    }
+  }
+
+
+  /*
+   * Data nodes
+   */
+
+  augment "/nw:networks/nw:network/nw:network-types" {
+    description
+      "Introduce new network type for L3 topology";
+    uses l3-network-type;
+  }
+
+  augment "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Configuration parameters for the L3 network
+            as a whole";
+    uses l3-network-attributes;
+  }
+
+  augment "/nw:networks/nw:network/nw:node" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Configuration parameters for L3 at the node
+            level";
+    uses l3-node-attributes;
+  }
+
+  augment "/nw:networks/nw:network/nt:link" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description "Augment L3 topology link information";
+    uses l3-link-attributes;
+  }
+
+  augment "/nw:networks/nw:network/nw:node/nt:termination-point" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network " {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Augment L3 topology termination point configuration";
+    uses l3-termination-point-attributes;
+  }
+} 

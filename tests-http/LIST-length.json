@@ -1,0 +1,5 @@
+{ 
+                "jetconf:input": { 
+		"url": "/ietf-network:networks/network=L31/node"
+ 	 }
+  }

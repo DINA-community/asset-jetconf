@@ -1,0 +1,303 @@
+module silab-layer-2-topology {
+	yang-version 1;
+	namespace "urn:TBD:params:xml:ns:yang:silab-layer-2-topology";
+	prefix l2;
+
+	import ietf-network {
+		prefix nw;
+	}
+
+	import ietf-network-topology {
+		prefix nt;
+	}
+
+	import ietf-yang-types {
+		prefix yang;
+	}
+
+	import ietf-inet-types {
+		prefix inet;
+	}
+
+	organization "Fraunhofer IOSB/Silab";
+	contact "lidia.grigoriev@iosb.fraunhofer.de";
+
+	description "This module defines a basic model for
+				the layer-2 topology of a network";
+
+	revision "2016-08-15" {
+		description "Initial revision";
+		reference "none";
+	}
+
+	identity interface-type {
+		description "Base identity from which specific interface types are
+					derived.";
+	}
+
+	feature if-mib {
+		description
+			"This feature indicates that the device implements
+					the IF-MIB.";
+		reference
+			"RFC 2863: The Interfaces Group MIB";
+	}
+
+	typedef tp-id {
+		type inet:uri;
+	description
+		 "An identifier for termination points on a node.
+				The identifier may be opaque.
+				The identifier SHOULD be chosen such that the same TP in a
+				real network topology will always be identified through the
+				same identifier, even if the model is instantiated in
+				separate datastores. An implementation MAY choose to capture
+				semantics in the identifier, for example to indicate the type
+				of TP and/or the type of node and topology that the TP is a
+				part of.";
+			}
+
+			/*
+			 * Groupings
+			 */
+
+
+			grouping l2-network-type {
+				description "Identify the topology type to be L2.";
+				container l2-network {
+					presence "indicates L2 Network";
+					description
+					"The presence of the container node indicates
+						L2 Topology";
+				}
+			}
+			grouping l2-network-attributes {
+				description "L2 Topology scope attributes";
+				container l2-network-attributes {
+					description "Containing L2 network attributes";
+					leaf name {
+						type string;
+						description "Name of the L2 network";
+					}
+					leaf vlan {
+						type int32;
+						description "VLAN ID of the network";
+					}
+				}
+			 }
+
+			 grouping l2-node-attributes {
+				 description "L2 node attributes";
+				 container l2-node-attributes {
+					 description "Containing L2 node attributes";
+					 leaf name {
+						 type string;
+						 description "Node name";
+					 }
+					 leaf timestamp {
+            			type uint32;
+            			description "Timestamp of the Node";
+           			}
+					 leaf description {
+						 type string;
+						 description "Node description";
+					 }
+					 leaf pseudonode {
+						 type boolean;
+			 default false;
+						 description "This node is a pseudonode, representing the multi-access network";
+					 }
+				 }
+			 }  // grouping l2-node-attributes
+
+			 grouping l2-link-attributes {
+				 description "L2 link attributes";
+				 container l2-link-attributes {
+					 description "Containing L2 link attributes";
+					 leaf name {
+						 type string;
+						 description "Link name";
+					 }
+				 }
+			 } // grouping l2-link-attributes
+
+			 grouping l2-termination-point-attributes {
+				 description "L2 termination point attributes";
+				 container l2-termination-point-attributes {
+					 description "Containing L2 TP attributes";
+					leaf description {
+						 type string;
+						 description "Port description";
+					 }
+		 			leaf name {
+			 			type string;
+			 			description
+				 			"The name of the interface.
+								A server implementation MAY map this leaf to the ifName
+								MIB object.  Such an implementation needs to use some
+								mechanism to handle the differences in size and characters
+								allowed between this leaf and ifName.  The definition of
+								such a mechanism is outside the scope of this document.";
+			 			reference
+				 			"RFC 2863: The Interfaces Group MIB - ifName";
+		 			}
+
+		 			leaf type {
+			 			type identityref {
+				 			base interface-type;
+			 			}
+			 			description
+				 		"The type of the interface.";
+			 			reference
+				 		"RFC 2863: The Interfaces Group MIB - ifType";
+		 			}
+					leaf ifIndex{
+					  type string;
+		 			// leaf ifIndex {
+			 		// 	if-feature if-mib;
+			 		// 	type int32 {
+				 	// 	range "1..2147483647";
+			 		// }
+			 		description
+				 	"The ifIndex value for the ifEntry represented by this interface.";
+			 		reference
+				 	"RFC 2863: The Interfaces Group MIB - ifIndex";
+		 			}
+		 
+					 leaf mac-address {
+						 type yang:mac-address;
+						 description
+							 "The interface's address at its protocol sub-layer.  For
+											example, for an 802.x interface, this object normally
+											contains a Media Access Control (MAC) address.  The
+											interface's media-specific modules must define the bit
+											and byte ordering and the format of the value of this
+											object.  For interfaces that do not have such an address
+											(e.g., a serial line), this node is not present.";
+						 reference
+							 "RFC 2863: The Interfaces Group MIB - ifPhysAddress";
+					 }
+		 
+	 }
+			 }
+
+	 /*** grouping of network/node/link/tp leaf-refs ***/
+
+		 grouping network-ref {
+			 description
+				 "Grouping for an absolute reference to a network topology
+				 instance.";
+			 leaf network-ref {
+				 type leafref {
+					 path "/nw:network/nw:network-id";
+				 }
+				 description
+					 "An absolute reference to a network topology instance.";
+			 }
+		 }
+ 
+
+		 grouping link-ref {
+			 description
+				 "Grouping for an absolute reference to a link instance.";
+				 uses network-ref;
+				 leaf link-ref {
+					 type leafref {
+						 path "/nw:network"
+							 +"[nw:network-id = current()/../network-ref]"
+							 +"/nt:link/nt:link-id";
+					 }
+				 description
+					 "An absolute reference to a link instance.";
+			 }
+		 }
+
+		 grouping node-ref {
+			 description
+				 "Grouping for an absolute reference to a node instance.";
+			 uses network-ref;
+			 leaf node-ref {
+				 type leafref {
+					 path "/nw:network"
+						 +"[nw:network-id = current()/../network-ref]"
+						 +"/nw:node/nw:node-id";
+				 }
+				 description
+					 "An absolute reference to a node instance.";
+			 }
+		 }
+
+		 grouping tp-ref {
+			 description
+				 "Grouping for an absolute reference to a termination point.";
+			 uses node-ref;
+			 leaf tp-ref {
+				 type leafref {
+					 path "/nw:network"
+						 +"[nw:network-id = current()/../network-ref]"
+						 +"/nw:node[nw:node-id = current()/../node-ref]"
+						 +"/nt:termination-point/nt:tp-id";
+				 }
+				 description
+					 "Grouping for an absolute reference to a TP.";
+			 }
+		 }
+
+
+			/*
+			 * Data nodes
+			 */
+
+			 augment "/nw:networks/nw:network/nw:network-types" {
+				 description
+					 "Introduce new network type for L2 topology";
+				 uses l2-network-type;
+			 }
+
+			 augment "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+					 description
+						 "Augmentation parameters apply only for networks
+							with L2 topology";
+				 }
+				 description
+					 "Configuration parameters for the L2 network
+						as a whole";
+				 uses l2-network-attributes;
+			 }
+
+			 augment "/nw:networks/nw:network/nw:node" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+					 description
+						 "Augmentation parameters apply only for networks
+							with L2 topology";
+				 }
+				 description
+					 "Configuration parameters for L2 at the node
+						level";
+				 uses l2-node-attributes;
+			 }
+
+			 augment "/nw:networks/nw:network/nt:link" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+					 description
+						 "Augmentation parameters apply only for networks
+							with L2 topology";
+				 }
+				 description "Augment L2 topology link information";
+				 uses l2-link-attributes;
+			 }
+
+			 augment "/nw:networks/nw:network/nw:node/nt:termination-point" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network " {
+			 description
+				 "Augmentation parameters apply only for networks
+							with L2 topology";
+		 }
+		 description
+			 "Augment L2 topology termination point configuration";
+			 uses l2-termination-point-attributes;
+			 }
+
+
+	 } 

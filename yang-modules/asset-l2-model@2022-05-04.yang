@@ -1,0 +1,278 @@
+module asset-l2-model {
+	yang-version 1;
+	namespace "urn:iosb:params:xml:ns:yang:asset-l2-model";
+	prefix l2;
+
+	import ietf-network {
+		prefix nw;
+	}
+
+	import ietf-network-topology {
+		prefix nt;
+	}
+
+	import ietf-yang-types {
+		prefix yang;
+	}
+
+	import ietf-inet-types {
+		prefix inet;
+	}
+
+	organization "Fraunhofer IOSB/BSI507";
+	contact "joerg.kippe@iosb.fraunhofer.de";
+
+	description "This module defines an asset model for
+				the layer-2 of a network";
+
+	revision "2022-05-04" {
+		description "Initial revision";
+		reference "none";
+	}
+
+	typedef tp-id {
+		type inet:uri;
+	description
+		 "An identifier for termination points on a node.
+				The identifier may be opaque.
+				The identifier SHOULD be chosen such that the same TP in a
+				real network topology will always be identified through the
+				same identifier, even if the model is instantiated in
+				separate datastores. An implementation MAY choose to capture
+				semantics in the identifier, for example to indicate the type
+				of TP and/or the type of node and topology that the TP is a
+				part of.";
+	}
+
+
+			/*
+			 * Groupings
+			 */
+
+
+			grouping l2-network-type {
+				description "Identify the topology type to be L2.";
+				container l2-network {
+					presence "indicates L2 Network";
+					description
+					"The presence of the container node indicates
+						L2 Topology";
+				}
+			}
+			grouping l2-network-attributes {
+				description "L2 Topology scope attributes";
+				container l2-network-attributes {
+					description "Containing L2 network attributes";
+					leaf name {
+						type string;
+						description "Name of the L2 network";
+					}
+				}
+			 }
+
+			 grouping l2-node-attributes {
+				 description "L2 node attributes";
+				 container l2-node-attributes {
+					 description "Containing L2 node attributes";
+					 leaf name {
+						 type string;
+						 description "Node name";
+					 }
+					 leaf category {
+					   type string;
+					   description "Node description";
+					 }
+				 }
+			 }  // grouping l2-node-attributes
+
+			 grouping l2-link-attributes {
+				 description "L2 link attributes";
+				 container l2-link-attributes {
+					 description "Containing L2 link attributes";
+					 leaf name {
+						 type string;
+						 description "Link name";
+					 }
+				 }
+			 } // grouping l2-link-attributes
+
+			 grouping l2-termination-point-attributes {
+				 description "L2 termination point attributes";
+				 container l2-termination-point-attributes {
+					description "Containing L2 TP attributes";
+					 leaf mac-address {
+					   type yang:mac-address;
+						 description
+							 "The interface's address at its protocol sub-layer.  For
+											example, for an 802.x interface, this object normally
+											contains a Media Access Control (MAC) address.  The
+											interface's media-specific modules must define the bit
+											and byte ordering and the format of the value of this
+											object.  For interfaces that do not have such an address
+											(e.g., a serial line), this node is not present.";
+						 reference
+							 "RFC 2863: The Interfaces Group MIB - ifPhysAddress";
+					 }
+					 leaf oui {
+						 type string;
+						 description
+							 "The registered vendor of this interface card";
+						 reference
+							 "RFC xxx";
+					 }
+					 leaf router-if {
+					   type string;
+					   description "is this a Router Interface";
+					 }
+		 
+				 }
+
+				  container mac-detect-attributes {
+					description "Attributes derived by macDetect";
+					 leaf oui {
+						 type string;
+						 description
+							 "The registered vendor of this interface card";
+					 }
+					 leaf vendor {
+						 type string;
+						 description
+							 "The name of the vendor derived by macDetect";
+					 }
+					 leaf product {
+						 type string;
+						 description
+							 "The name of the product derived by macDetect";
+					 }
+					 leaf likelihood {
+						 type decimal64 {
+						   fraction-digits "1";
+						 }
+						 description
+							 "The likelihood given by macDetect";
+					 }
+		 
+				 }
+				
+			 }
+
+	 /*** grouping of network/node/link/tp leaf-refs ***/
+
+		 grouping network-ref {
+			 description
+				 "Grouping for an absolute reference to a network topology
+				 instance.";
+			 leaf network-ref {
+				 type leafref {
+					 path "/nw:network/nw:network-id";
+				 }
+				 description
+					 "An absolute reference to a network topology instance.";
+			 }
+		 }
+ 
+
+		 grouping link-ref {
+			 description
+				 "Grouping for an absolute reference to a link instance.";
+				 uses network-ref;
+				 leaf link-ref {
+					 type leafref {
+						 path "/nw:network"
+							 +"[nw:network-id = current()/../network-ref]"
+							 +"/nt:link/nt:link-id";
+					 }
+				 description
+					 "An absolute reference to a link instance.";
+			 }
+		 }
+
+		 grouping node-ref {
+			 description
+				 "Grouping for an absolute reference to a node instance.";
+			 uses network-ref;
+			 leaf node-ref {
+				 type leafref {
+					 path "/nw:network"
+						 +"[nw:network-id = current()/../network-ref]"
+						 +"/nw:node/nw:node-id";
+				 }
+				 description
+					 "An absolute reference to a node instance.";
+			 }
+		 }
+
+		 grouping tp-ref {
+			 description
+				 "Grouping for an absolute reference to a termination point.";
+			 uses node-ref;
+			 leaf tp-ref {
+				 type leafref {
+					 path "/nw:network"
+						 +"[nw:network-id = current()/../network-ref]"
+						 +"/nw:node[nw:node-id = current()/../node-ref]"
+						 +"/nt:termination-point/nt:tp-id";
+				 }
+				 description
+					 "Grouping for an absolute reference to a TP.";
+			 }
+		 }
+
+
+			/*
+			 * Data nodes
+			 */
+
+			 augment "/nw:networks/nw:network/nw:network-types" {
+				 description
+					 "Introduce new network type for L2 topology";
+				 uses l2-network-type;
+			 }
+
+			 augment "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+					 description
+						 "Augmentation parameters apply only for networks
+							with L2 topology";
+				 }
+				 description
+					 "Configuration parameters for the L2 network
+						as a whole";
+				 uses l2-network-attributes;
+			 }
+
+			 augment "/nw:networks/nw:network/nw:node" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+					 description
+						 "Augmentation parameters apply only for networks
+							with L2 topology";
+				 }
+				 description
+					 "Configuration parameters for L2 at the node
+						level";
+				 uses l2-node-attributes;
+			 }
+
+			 augment "/nw:networks/nw:network/nt:link" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network" {
+					 description
+						 "Augmentation parameters apply only for networks
+							with L2 topology";
+				 }
+				 description "Augment L2 topology link information";
+				 uses l2-link-attributes;
+			 }
+
+			 augment "/nw:networks/nw:network/nw:node/nt:termination-point" {
+				 when "/nw:networks/nw:network/nw:network-types/l2:l2-network " {
+			 description
+				 "Augmentation parameters apply only for networks
+							with L2 topology";
+		 }
+		 description
+			 "Augment L2 topology termination point configuration";
+			 uses l2-termination-point-attributes;
+			 }
+
+
+	 } 

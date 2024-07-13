@@ -1,0 +1,24 @@
+{
+    "ietf-network:node": {
+	"node-id": "66",
+	    "asset-l3-model:l3-node-attributes": {
+                "category": "Computer",
+                "name": "unknown"
+	    },
+	    "ietf-network-topology:termination-point": [
+                {
+                    "tp-id": "135",
+                    "asset-l3-model:l3-termination-point-attributes": {
+                        "network-protocol": "ipv4",
+                        "transport-protocol": "udp",
+                        "application-protocol": "False",
+                        "ipv4": {
+                            "ip": "172.16.163.72",
+                            "port": 1740
+                        }
+                    }
+                }
+            ]
+	}
+    
+}

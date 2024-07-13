@@ -1,0 +1,257 @@
+module silab-layer-1-topology {
+    yang-version 1;
+    namespace "urn:TBD:params:xml:ns:yang:silab-layer-1-topology";
+    prefix l1;
+
+    import ietf-network {
+        prefix nd;
+    }
+
+    import ietf-network-topology {
+        prefix nt;
+    }
+
+
+    organization "Fraunhofer IOSB/Silab";
+    contact "lidia.grigoriev@iosb.fraunhofer.de";
+
+    description
+       	"This module defines a basic model for
+        the layer-1 topology of a network";
+
+    revision "2016-08-15" {
+        description "Initial revision";
+        reference "none";
+    }
+
+
+    typedef mac-address {
+      type string {
+        pattern
+          '[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}';
+      }
+      description
+        "The mac-address type represents an IEEE 802 MAC address.
+      The canonical representation uses lowercase characters.
+
+      In the value set and its semantics, this type is equivalent
+      to the MacAddress textual convention of the SMIv2.";
+      reference
+        "IEEE 802: IEEE Standard for Local and Metropolitan Area
+        	  Networks: Overview and Architecture
+         RFC 2579: Textual Conventions for SMIv2";
+
+    }
+
+    /*
+     * Groupings
+     */
+
+    grouping l1-network-type {
+        description "Identify the topology type to be L1.";
+        container l1-network {
+           	presence "indicates L1 Network";
+           	description
+           	"The presence of the container node indicates
+            L1 Topology";
+        }
+    }
+    grouping l1-network-attributes {
+        description "L1 Topology scope attributes";
+        container l1-network-attributes {
+           	description "Containing L1 network attributes";
+           	leaf name {
+             	type string;
+             	description "Name of the L1 network";
+           	}
+        }
+    }
+    grouping l1-node-attributes {
+        description "L1 node attributes";
+        container l1-node-attributes {
+           	description "Containing L1 node attributes";
+           	leaf name {
+             	type string;
+             	description "Node name";
+           	}
+           	leaf description {
+             	type string;
+             	description "Node description";
+           	}
+           	leaf timestamp {
+            	type uint32;
+            	description "Timestamp of the Node";
+           	}
+           	leaf pseudonode {
+            	type boolean;
+            	description "Indicates if the given Node is a pseudonode";
+           	}
+      	   	leaf category {
+      	    	type enumeration {
+      	       		enum unknown;
+      	       		enum Servers;
+      	       		enum Router;
+      	       		enum Switch;
+               		enum SwitchVirtual;
+      	       		enum Production;
+      	       		enum Test;
+      	       		enum Development;
+      	    	}
+            	description "Enumeration indicating the purpose of the node";
+        	}
+    	}
+	}  // grouping l1-node-attributes
+
+    grouping l1-link-attributes {
+        description "L2 link attributes";
+        container l1-link-attributes {
+          	description "Containing L1 link attributes";
+           	leaf name {
+             	type string;
+             	description "Link name";
+           	}
+        }
+    } // grouping l1-link-attributes
+
+    grouping l1-termination-point-attributes {
+        description "L1 termination point attributes";
+        container l1-termination-point-attributes {
+           	description "Containing L1 TP attributes";
+           	leaf description {
+             	type string;
+             	description "Port description";
+           	}
+           	leaf mac-address {
+           		type mac-address;
+           		description "MAC address of the port.";
+           	}
+           	leaf type{
+           		type string;
+           		description "Type of the Port";
+           	}
+           	leaf ifIndex{
+           		type string;
+           		description "Interface Index";
+           	}
+        }
+    }
+
+   /*** grouping of network/node/link/tp leaf-refs ***/
+
+     grouping network-ref {
+       description
+         "Grouping for an absolute reference to a network topology
+         instance.";
+       leaf network-ref {
+         type leafref {
+           path "/nd:networks/nd:network/nd:network-id";
+         }
+         description
+           "An absolute reference to a network topology instance.";
+       }
+     }
+
+     grouping link-ref {
+       description
+         "Grouping for an absolute reference to a link instance.";
+         uses network-ref;
+         leaf link-ref {
+           type leafref {
+             path "/nd:networks/nd:network"
+               +"[nd:network-id = current()/../network-ref]"
+               +"/nt:link/nt:link-id";
+           }
+         description
+           "An absolute reference to a link instance.";
+       }
+     }
+
+     grouping node-ref {
+       description
+         "Grouping for an absolute reference to a node instance.";
+       uses network-ref;
+       leaf node-ref {
+         type leafref {
+           path "/nd:networks/nd:network"
+             +"[nd:network-id = current()/../network-ref]"
+             +"/nd:node/nd:node-id";
+         }
+         description
+           "An absolute reference to a node instance.";
+       }
+     }
+
+     grouping tp-ref {
+       description
+         "Grouping for an absolute reference to a termination point.";
+       uses node-ref;
+       leaf tp-ref {
+         type leafref {
+           path "/nd:network"
+             +"[nd:network-id = current()/../network-ref]"
+             +"/nd:node[nd:node-id = current()/../node-ref]"
+             +"/nt:termination-point/nt:tp-id";
+         }
+         description
+           "Grouping for an absolute reference to a TP.";
+       }
+     }
+
+
+      /*
+       * Data nodes
+       */
+
+       augment "/nd:networks/nd:network/nd:network-types" {
+         description
+           "Introduce new network type for L1 topology";
+         uses l1-network-type;
+       }
+
+       augment "/nd:networks/nd:network/nd:network-types/l1:l1-network" {
+         when "/nd:networks/nd:network/nd:network-types/l1:l1-network" {
+           description
+             "Augmentation parameters apply only for networks
+              with L1 topology";
+         }
+         description
+           "Configuration parameters for the L1 network
+            as a whole";
+         uses l1-network-attributes;
+       }
+
+       augment "/nd:networks/nd:network/nd:node" {
+         when "../nd:network-types/l1:l1-network" {
+           description
+             "Augmentation parameters apply only for networks
+              with L1 topology";
+         }
+         description
+           "Configuration parameters for L1 at the node
+            level";
+         uses l1-node-attributes;
+       }
+
+       augment "/nd:networks/nd:network/nt:link" {
+         when "/nd:networks/nd:network/nd:network-types/l1:l1-network" {
+           description
+             "Augmentation parameters apply only for networks
+              with L1 topology";
+         }
+         description "Augment L1 topology link information";
+         uses l1-link-attributes;
+       }
+
+       augment "/nd:networks/nd:network/nd:node/nt:termination-point" {
+         when "/nd:networks/nd:network/nd:network-types/l1:l1-network" {
+           description
+             "Augmentation parameters apply only for networks
+              with L1 topology";
+         }
+         description
+           "Augment L1 topology termination point configuration";
+         uses l1-termination-point-attributes;
+       }
+
+
+   } 

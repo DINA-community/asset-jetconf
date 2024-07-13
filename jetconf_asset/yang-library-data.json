@@ -1,0 +1,94 @@
+{
+  "ietf-yang-library:modules-state": {
+    "module-set-id": "",
+    "module": [
+      {
+        "name": "asset-l2-model",
+        "revision": "2022-05-04",
+        "namespace": "urn:iosb:params:xml:ns:yang:asset-l2-model",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "asset-l3-model",
+        "revision": "2022-05-03",
+        "namespace": "urn:iosb:params:xml:ns:yang:asset-l3-model",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "asset-inventory-model",
+        "revision": "2022-06-13",
+        "namespace": "urn:iosb:params:xml:ns:yang:asset-inventory-model",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-inet-types",
+        "revision": "2013-07-15",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-inet-types",
+        "conformance-type": "import"
+      },
+      {
+        "name": "ietf-inet-types",
+        "revision": "2021-02-22",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-inet-types",
+        "conformance-type": "import"
+      },
+      {
+        "name": "ietf-interfaces",
+        "revision": "2018-02-20",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-interfaces",
+        "feature": [
+          "arbitrary-names",
+          "pre-provisioning",
+          "if-mib"
+        ],
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-ip",
+        "revision": "2018-02-22",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-ip",
+        "feature": [
+          "ipv4-non-contiguous-netmasks",
+          "ipv6-privacy-autoconf"
+        ],
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-netconf-acm",
+        "revision": "2012-02-22",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-netconf-acm",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-network",
+        "revision": "2018-02-26",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-network",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-network-topology",
+        "revision": "2018-02-26",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-network-topology",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-yang-library",
+        "revision": "2016-06-21",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-library",
+        "conformance-type": "implement"
+      },
+      {
+        "name": "ietf-yang-types",
+        "revision": "2013-07-15",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-types",
+        "conformance-type": "import"
+      },
+      {
+        "name": "ietf-yang-types",
+        "revision": "2022-02-03",
+        "namespace": "urn:ietf:params:xml:ns:yang:ietf-yang-types",
+        "conformance-type": "import"
+      }
+    ]
+  }
+}

@@ -1,0 +1,252 @@
+module asset-l3-model {
+  yang-version 1;
+  namespace "urn:iosb:params:xml:ns:yang:asset-l3-model";
+  prefix l3;
+
+  import ietf-network {
+    prefix nw;
+  }
+
+  import ietf-network-topology {
+    prefix nt;
+  }
+
+  import ietf-yang-types {
+    prefix yang;
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  organization "Fraunhofer IOSB/BSI507";
+  contact "joerg.kippe@iosb.fraunhofer.de";
+
+  description
+    "This module defines an asset model for
+          the layer-3 of a network";
+
+  revision "2022-05-03" {
+    description "Initial revision";
+    reference "none";
+  }
+
+  typedef tp-id {
+    type inet:uri;
+    description
+      "An identifier for termination points on a node.
+        The identifier may be opaque.
+        The identifier SHOULD be chosen such that the same TP in a
+        real network topology will always be identified through the
+        same identifier, even if the model is instantiated in
+        separate datastores. An implementation MAY choose to capture
+        semantics in the identifier, for example to indicate the type
+        of TP and/or the type of node and topology that the TP is a
+        part of.";
+  }
+
+  /*
+   * Groupings
+   */
+
+
+  grouping l3-network-type {
+    description "Identify the topology type to be L3.";
+    container l3-network {
+      presence "indicates L3 Network";
+      description
+	"The presence of the container node indicates
+            L3 Topology";
+    }
+  }
+  grouping l3-network-attributes {
+    description "L3 Topology scope attributes";
+    container l3-network-attributes {
+      description "Containing L3 network attributes";
+      leaf name {
+	type string;
+	description "Name of the L3 network";
+      }
+    }
+  }
+
+  grouping l3-node-attributes {
+    description "L3 node attributes";
+    container l3-node-attributes {
+      description "Containing L3 node attributes";
+      leaf name {
+	type string;
+	description "Node name";
+      }
+      leaf category {
+    	type string;
+      	description "Node description";
+      }
+    }
+  }  // grouping l3-node-attributes
+
+  grouping l3-link-attributes {
+    description "L3 link attributes";
+    container l3-link-attributes {
+      description "Containing L3 link attributes";
+      leaf name {
+	type string;
+	description "Link name";
+      }
+    }
+  } // grouping l3-link-attributes
+
+  grouping l3-termination-point-attributes {
+    description "L3 termination point attributes";
+    container l3-termination-point-attributes {
+      description "Containing L3 TP attributes";
+      leaf network-protocol {
+	       type string;
+	       description "Network Protocol";
+      }
+      leaf transport-protocol {
+	       type string;
+	       description "Transport Protocol";
+      }
+      leaf application-protocol {
+	       type string;
+	       description "Application Protocol";
+      }
+      leaf protocol-role {
+	       type string;
+	       description "Protocol role";
+      }
+      container ipv4 {
+	       leaf ip {
+	         type inet:ipv4-address-no-zone;
+	         description
+	         "The IPv4 address on the interface.";
+	       }
+	       leaf port {
+	         type inet:port-number;
+	         description
+	         "The Port number on the interface.";
+	       }
+	     }
+      }
+    }
+  
+
+  /*** grouping of network/node/link/tp leaf-refs ***/
+
+  grouping network-ref {
+    description
+      "Grouping for an absolute reference to a network topology
+         instance.";
+    leaf network-ref {
+      type leafref {
+	path "/nw:network/nw:network-id";
+      }
+      description
+	"An absolute reference to a network topology instance.";
+    }
+  }
+ 
+
+  grouping link-ref {
+    description
+      "Grouping for an absolute reference to a link instance.";
+    uses network-ref;
+    leaf link-ref {
+      type leafref {
+	path "/nw:network"
+	  +"[nw:network-id = current()/../network-ref]"
+	  +"/nt:link/nt:link-id";
+      }
+      description
+	"An absolute reference to a link instance.";
+    }
+  }
+
+  grouping node-ref {
+    description
+      "Grouping for an absolute reference to a node instance.";
+    uses network-ref;
+    leaf node-ref {
+      type leafref {
+	path "/nw:network"
+	  +"[nw:network-id = current()/../network-ref]"
+	  +"/nw:node/nw:node-id";
+      }
+      description
+	"An absolute reference to a node instance.";
+    }
+  }
+
+  grouping tp-ref {
+    description
+      "Grouping for an absolute reference to a termination point.";
+    uses node-ref;
+    leaf tp-ref {
+      type leafref {
+	path "/nw:network"
+	  +"[nw:network-id = current()/../network-ref]"
+	  +"/nw:node[nw:node-id = current()/../node-ref]"
+	  +"/nt:termination-point/nt:tp-id";
+      }
+      description
+	"Grouping for an absolute reference to a TP.";
+    }
+  }
+
+
+  /*
+   * Data nodes
+   */
+
+  augment "/nw:networks/nw:network/nw:network-types" {
+    description
+      "Introduce new network type for L3 topology";
+    uses l3-network-type;
+  }
+
+  augment "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Configuration parameters for the L3 network
+            as a whole";
+    uses l3-network-attributes;
+  }
+
+  augment "/nw:networks/nw:network/nw:node" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Configuration parameters for L3 at the node
+            level";
+    uses l3-node-attributes;
+  }
+
+  augment "/nw:networks/nw:network/nt:link" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description "Augment L3 topology link information";
+    uses l3-link-attributes;
+  }
+
+  augment "/nw:networks/nw:network/nw:node/nt:termination-point" {
+    when "/nw:networks/nw:network/nw:network-types/l3:l3-network " {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Augment L3 topology termination point configuration";
+    uses l3-termination-point-attributes;
+  }
+} 

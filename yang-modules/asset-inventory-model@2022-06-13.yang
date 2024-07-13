@@ -1,0 +1,249 @@
+module asset-inventory-model {
+  yang-version 1;
+  namespace "urn:iosb:params:xml:ns:yang:asset-inventory-model";
+  prefix inv;
+
+  import ietf-network {
+    prefix nw;
+  }
+
+
+  import ietf-yang-types {
+    prefix yang;
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  organization "Fraunhofer IOSB/BSI507";
+  contact "joerg.kippe@iosb.fraunhofer.de";
+
+  description
+    "This module defines an asset inventoty model";
+
+  revision "2022-06-13" {
+    description "Initial revision";
+    reference "none";
+  }
+
+
+  /*
+   * Groupings
+   */
+
+
+  grouping inventory-network-type {
+    description "Identify the topology type to be Inventory.";
+    container inventory-network {
+      presence "indicates Inventory Network";
+      description
+	"The presence of the container node indicates
+            Inventory";
+    }
+  }
+  grouping inventory-network-attributes {
+    description "Inventory scope attributes";
+    container inventory-network-attributes {
+      description "Containing Inventory network attributes";
+      leaf name {
+	type string;
+	description "Name of the Inventory network";
+      }
+    }
+  }
+
+  grouping device-attributes {
+    description "Inventory node attributes";
+    container device-attributes {
+      description "Containing Inventory node attributes";
+      leaf name {
+	type string;
+	description "Node name";
+      }
+      leaf vendor {
+      	     type string;
+      	     description "Vendor name";
+     	      }
+      leaf deviceType {
+    	      type string;
+      	      description "Device type description";
+	      }
+      leaf product {
+    	     type string;
+      	     description "Product name";
+     	      }
+      list findings {
+      	 key findings-id;
+    	 leaf findings-id {
+    	    type string;
+      	    description "Name of ML module";
+     	       }
+	 leaf ml-module {
+    	    type string;
+      	    description "Name of ML module";
+     	       }
+	 leaf vendor {
+    	     type string;
+      	     description "Vendor name";
+     	        }
+	 leaf deviceType {
+    	      type string;
+      	      description "Device type description";
+	      }
+      	 leaf product {
+    	     type string;
+      	     description "Product name";
+     	        }
+	 leaf likelihood {
+    	     type string;
+      	     description "Likelihood of this prediction";
+     	        }
+	 leaf oui {
+    	     type string;
+      	     description "Device type description";
+	        }
+	 leaf router-if {
+    	     type string;
+      	     description "is this a Router Interface";
+	 }
+	 leaf mac-address {
+	   type yang:mac-address;
+      	     description "the interfaces mac address";
+	        }
+              }	
+      leaf-list mac-addresses {
+	type yang:mac-address;
+      }
+      list ipv4-services {
+	key ip-addr;
+	leaf ip-addr {
+	  type inet:ipv4-address-no-zone;
+	    description
+	      "The IPv4 address on the interface.";
+	}
+	list server {
+	  key transport-protocol;
+	  leaf transport-protocol {
+	    type string; 
+	  }
+	  list services  {
+	    /*	    	    key services-id;
+	    leaf services-id {
+	      type string;
+	      description
+		"";
+		}*/
+	    leaf application-protocol {
+	      type string;
+	      description
+		"The Port number on the interface.";
+	    }
+	    leaf port {
+	      type inet:port-number;
+	      description
+		"The Port number on the interface.";
+	    }
+	  }
+	}
+	list clients {
+	  key transport-protocol;
+	  leaf transport-protocol {
+	    type string; 
+	  }
+	  list services  {
+	    /*	    key services-id;
+	    leaf services-id {
+	      type string;
+	      description
+		"";
+		}*/
+	    leaf application-protocol {
+	      type string;
+	      description
+		"The Port number on the interface.";
+	    }
+	    leaf min-port {
+	      type inet:port-number;
+	      description
+		"The Port number on the interface.";
+	    }
+	    leaf max-port {
+	      type inet:port-number;
+	      description
+		"The Port number on the interface.";
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  /*** grouping of network/node/link/tp leaf-refs ***/
+
+  grouping network-ref {
+    description
+      "Grouping for an absolute reference to a network topology
+         instance.";
+    leaf network-ref {
+      type leafref {
+	path "/nw:network/nw:network-id";
+      }
+      description
+	"An absolute reference to a network topology instance.";
+    }
+  }
+ 
+
+  grouping node-ref {
+    description
+      "Grouping for an absolute reference to a node instance.";
+    uses network-ref;
+    leaf node-ref {
+      type leafref {
+	path "/nw:network"
+	  +"[nw:network-id = current()/../network-ref]"
+	  +"/nw:node/nw:node-id";
+      }
+      description
+	"An absolute reference to a node instance.";
+    }
+  }
+
+
+  /*
+   * Data nodes
+   */
+
+  augment "/nw:networks/nw:network/nw:network-types" {
+    description
+      "Introduce new network type for Inventory";
+    uses inventory-network-type;
+  }
+
+  augment "/nw:networks/nw:network/nw:network-types/inv:inventory-network" {
+    when "/nw:networks/nw:network/nw:network-types/inv:inventory-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Configuration parameters for the L3 network
+            as a whole";
+    uses inventory-network-attributes;
+  }
+
+  augment "/nw:networks/nw:network/nw:node" {
+    when "/nw:networks/nw:network/nw:network-types/inv:inventory-network" {
+      description
+	"Augmentation parameters apply only for networks
+              with L3 topology";
+    }
+    description
+      "Configuration parameters for L3 at the node
+            level";
+    uses device-attributes;
+  }
+
+
+} 
