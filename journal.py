@@ -72,14 +72,14 @@ class UsrChangeJournal:
             return False
 
         if hash(ds.get_data_root()) == hash(self._root_origin):
-            info("Commiting new configuration (swapping roots)")
+            info("Committing new configuration (swapping roots)")
             # Set new root
             nr = self.get_root_head()
 
             for change in self._journal:
                 nacm_modified = nacm_modified or change.nacm_modified
         else:
-            info("Commiting new configuration (re-applying changes)")
+            info("Committing new configuration (re-applying changes)")
             nr = ds.get_data_root()
 
             for change in self._journal:
@@ -113,7 +113,7 @@ class UsrChangeJournal:
         try:
             ds.handlers.commit_begin()
         except Exception as e:
-            error("Exception occured in commit_begin handler: {}".format(epretty(e)))
+            error("Exception occurred in commit_begin handler: {}".format(epretty(e)))
             begin_hook_failed = True
 
         # Run schema node handlers
@@ -124,7 +124,7 @@ class UsrChangeJournal:
                     ii = ds.parse_ii(change.rpc_info.path, change.rpc_info.path_format)
                     ds.run_conf_edit_handler(ii, change)
             except Exception as e:
-                error("Exception occured in edit handler: {}".format(epretty(e)))
+                error("Exception occurred in edit handler: {}".format(epretty(e)))
                 conf_handler_failed = True
 
         # Call commit end hook
@@ -134,7 +134,7 @@ class UsrChangeJournal:
             try:
                 ds.handlers.commit_end(failed=False)
             except Exception as e:
-                error("Exception occured in commit_end handler: {}".format(epretty(e)))
+                error("Exception occurred in commit_end handler: {}".format(epretty(e)))
                 end_hook_failed = True
 
         if begin_hook_failed or conf_handler_failed or end_hook_failed:
@@ -142,7 +142,7 @@ class UsrChangeJournal:
                 # Call commit_end callback again with "failed" argument set to True
                 ds.handlers.commit_end(failed=True)
             except Exception as e:
-                error("Exception occured in commit_end handler (abort): {}".format(epretty(e)))
+                error("Exception occurred in commit_end handler (abort): {}".format(epretty(e)))
                 end_hook_abort_failed = True
 
         # Return to previous version of data and raise an exception if something went wrong
