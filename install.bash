@@ -8,27 +8,30 @@
 #
 #####################################################
 #
-#  Jörg Kippe
+#  JÃ¶rg Kippe
 #  Fraunhofer IOSB
 #  Fraunhoferstr. 1
 #  D-76131 Karlsruhe
 #
 #####################################################
 
+# Abort for errors
+set -euo pipefail
+# debug mode
+[ -z "${DEBUG-}" ] || set -x
+
 echo "Installing starting..."
 
 git config user.email "root@assetmanager.bsi.corp"
 
-HOME=`pwd`
+HOME=$(pwd)
 
-python3 -m pip install jetconf
+python3 -m pip install jetconf pyang
 
-pip install pyang
-
-apt-get -y install yang-tools
+DEBIAN_FRONTEND=noninteractive apt-get -y install yang-tools
 
 cd /home/asset-manager/software/asset-jetconf
-python3 setup.py install
+python3 -m pip install -e .
 cp /home/asset-manager/software/asset-jetconf/journal.py /usr/local/lib/python3.10/dist-packages/jetconf/
 
 cd /home/asset-manager/software/asset-jetconf/utils/cert_gen
