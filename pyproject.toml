@@ -1,0 +1,42 @@
+[project]
+name = "jetconf_asset"
+dynamic = ["version"]
+description = "JetConf Asset Mgt backend"
+authors = [
+    { name = "Joerg Kippe", email = "joerg.kippe@iosb.fraunhofer.de" },
+]
+license = "GPL-3.0"
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3"
+keywords = ["RESTCONF", "yang", "data model", "Jetconf"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Plugins",
+    "Framework :: Django",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Telecommunications Industry",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Monitoring",
+    "Topic :: System :: Systems Administration"
+]
+dependencies = [
+    "jetconf"
+]
+
+[tool.setuptools_scm]
+
+[project.urls]
+homepage = "https://github.com/DINA-community/asset-jetconf/"
+repository = "https://github.com/DINA-community/asset-jetconf/"
+documentation = "https://github.com/DINA-community/asset-jetconf/"
+"Bug Tracker" = "https://github.com/DINA-community/asset-jetconf/issues/"
+
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["jetconf_asset"]

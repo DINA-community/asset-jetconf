@@ -22,23 +22,26 @@ set -euo pipefail
 
 echo "Installing starting..."
 
+#checking for root rights
+if [ $EUID != 0 ]; then
+  echo -e '"Not enough minerals!" - Are you root? '
+  exit 1
+fi
+
+apt-get update -qq
+DEBIAN_FRONTEND=noninteractive apt-get -y install libyang-tools git python3-pip python3-setuptools-scm
+
 git config user.email "root@assetmanager.bsi.corp"
 
-HOME=$(pwd)
+python3 -m pip install --break-system-packages jetconf pyang
+python3 -m pip install --break-system-packages -e .
 
-python3 -m pip install jetconf pyang
-
-DEBIAN_FRONTEND=noninteractive apt-get -y install yang-tools
-
-cd /home/asset-manager/software/asset-jetconf
-python3 -m pip install -e .
-cp /home/asset-manager/software/asset-jetconf/journal.py /usr/local/lib/python3.10/dist-packages/jetconf/
-
-cd /home/asset-manager/software/asset-jetconf/utils/cert_gen
+pushd utils/cert_gen
 #./gen_server_cert.sh assetmgt 172.16.15.1.82
 #./gen_client_cert.sh joerg@iosb.fraunhofer.de
 ./gen_server_cert.sh assetmgt bsi.corp
 ./gen_client_cert.sh analyst@bsi.corp
+popd
 
 ##cp ca.pem /home/asset-manager/software/asset-jetconf/
 ##cp server_assetmgt.* /home/asset-manager/software/asset-jetconf/
