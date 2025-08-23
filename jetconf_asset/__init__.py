@@ -3,7 +3,7 @@
 #####################################################
 #
 #  Projekt: BSI-507
-#  Assetmanager Jetconf Backend 
+#  Assetmanager Jetconf Backend
 #  file: __init__.py
 #
 #####################################################
@@ -23,15 +23,16 @@ import sys
 import yaml
 import os
 import json
-from pathlib import Path
-sys.path.append('./../asset-discovery/')
+import os.path
+sys.path.append(os.path.dirname(__file__) + '/../../asset-discovery/')
 from datastore import L2Network, L3Network, Inventory, Device, L2Node, L3Node, NodeSupport, L3TerminationPoint, L2TerminationPoint, TPSupport, L2Link, L3Link, LinkSupport, User, ROOT_NETWORK, initialize_db, DATABASE
 import broker
 import threading
 import time
 
 conf = None
-with open("/home/asset-manager/site/config.yaml", "r") as stream:
+# expected at ${devicemanagement}/site/config.yaml
+with open(os.path.dirname(__file__) + "../../../site/config.yaml", "r") as stream:
     conf = yaml.safe_load(stream)
 asset_manager = conf['asset-manager']
 asset_discovery = asset_manager['asset-discovery']

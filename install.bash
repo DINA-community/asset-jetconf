@@ -43,7 +43,7 @@ pushd utils/cert_gen
 ./gen_client_cert.sh analyst@bsi.corp
 popd
 
-mkdir /home/asset-manager/logs/
+mkdir logs/
 
 ##cp ca.pem /home/asset-manager/software/asset-jetconf/
 ##cp server_assetmgt.* /home/asset-manager/software/asset-jetconf/
