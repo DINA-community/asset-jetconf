@@ -15,7 +15,7 @@
 #
 ####################################################
 
-from jetconf.jetconf import JC
+from jetconf import jetconf, config as jetconf_config
 from jetconf.errors import JetconfInitError
 from yangson.enumerations import ContentType, ValidationScope
 from colorlog import info
@@ -32,7 +32,7 @@ import time
 
 conf = None
 # expected at ${devicemanagement}/site/config.yaml
-with open(os.path.dirname(__file__) + "../../../site/config.yaml", "r") as stream:
+with open(os.path.dirname(__file__) + "/../../../site/config.yaml", "r") as stream:
     conf = yaml.safe_load(stream)
 asset_manager = conf['asset-manager']
 asset_discovery = asset_manager['asset-discovery']
@@ -44,6 +44,9 @@ mutex = threading.Lock()
 
 initialize_db('RESTAPI')
 
+jc_config = jetconf_config.JcConfig()
+jc_config.load_file(os.path.dirname(__file__) + "/../topology-config.yaml")
+JC = jetconf.Jetconf(jc_config)
 ds_dump_filename = JC.config.glob["DATA_JSON_FILE"]
 
 

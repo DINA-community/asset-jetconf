@@ -1,7 +1,6 @@
 GLOBAL:
     TIMEZONE: "Europe/Berlin"
-    LOGFILE: "logs/jetconf.log"
-#    LOGFILE: "-"
+    LOGFILE: "../../logs/jetconf.log"
     PIDFILE: "/tmp/jetconf.pid"
     PERSISTENT_CHANGES: true
     LOG_LEVEL: "debug"
