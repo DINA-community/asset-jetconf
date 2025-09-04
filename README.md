@@ -4,15 +4,15 @@ Authors: Pavel Špírek <pavel.spirek@nic.cz>, Joerg Kippe <joerg.kippe@iosb.fra
 
 ## Installation
 
-You must first create a user called asset-manager:
+You must first create a user called analyst:
 ```bash
-useradd asset-manager
+useradd analyst
 ```
 
-Then install this software at `/home/asset-manager/software/asset-jetconf/`:
+Then install this software at `/home/analyst/software/asset-jetconf/`:
 
 ```bash
-sudo -iu asset-manager
+sudo -iu analyst
 mkdir software && cd software
 git clone https://github.com/DINA-community/asset-jetconf
 ```
