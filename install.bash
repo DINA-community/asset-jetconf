@@ -43,8 +43,6 @@ pushd utils/cert_gen
 ./gen_client_cert.sh analyst@bsi.corp
 popd
 
-mkdir logs/
-
 ##cp ca.pem /home/analyst/software/asset-jetconf/
 ##cp server_assetmgt.* /home/analyst/software/asset-jetconf/
 ##cp joerg@iosb.fraunhofer.de_curl.pem /home/analyst/software/asset-jetconf/tests-http/
