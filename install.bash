@@ -45,7 +45,7 @@ popd
 
 ##cp ca.pem /home/analyst/software/asset-jetconf/
 ##cp server_assetmgt.* /home/analyst/software/asset-jetconf/
-##cp joerg@iosb.fraunhofer.de_curl.pem /home/analyst/software/asset-jetconf/tests-http/
+##cp analyst@bsi.corp_curl.pem /home/analyst/software/asset-jetconf/tests-http/
 
 
 ######################################################
