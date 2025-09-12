@@ -111,28 +111,27 @@ def make_datastore(ds_dump_filename: str) -> None:
     Results:
        None
     """
-    ds_dump = open(ds_dump_filename, 'w')
-    mutex.acquire()
-    DATABASE.connect(reuse_if_open=True)
-    nets = []
-    query3 = L3Network.select()
-    for l3net in query3:
-        nets = nets + [l3net]
-    query2 = L2Network.select()
-    for l2net in query2:
-        nets = nets + [l2net]
-    query1 = Inventory.select()
-    for inv in query1:
-        nets = nets + [inv]
-    result = {"ietf-netconf-acm:nacm": {"enable-nacm":False}}
-    networks = []
-    for a_net in nets:
-        networks = networks + a_net.make_yang_data()
-    result['ietf-network:networks'] = {'network': networks}
-    json_res = json.dumps(result, indent=4)
-    print (json_res, file=ds_dump, flush=True)
-    DATABASE.close()
-    mutex.release()
+    with open(ds_dump_filename, 'w') as ds_dump:
+        mutex.acquire()
+        DATABASE.connect(reuse_if_open=True)
+        nets = []
+        query3 = L3Network.select()
+        for l3net in query3:
+            nets = nets + [l3net]
+        query2 = L2Network.select()
+        for l2net in query2:
+            nets = nets + [l2net]
+        query1 = Inventory.select()
+        for inv in query1:
+            nets = nets + [inv]
+        result = {"ietf-netconf-acm:nacm": {"enable-nacm":False}}
+        networks = []
+        for a_net in nets:
+            networks = networks + a_net.make_yang_data()
+        result['ietf-network:networks'] = {'network': networks}
+        json.dump(obj=result, fp=ds_dump, indent=4)
+        DATABASE.close()
+        mutex.release()
 
 
 if not os.path.exists(ds_dump_filename) or os.stat(ds_dump_filename).st_size == 0:
