@@ -31,10 +31,8 @@ fi
 apt-get update -qq
 DEBIAN_FRONTEND=noninteractive apt-get -y install libyang-tools git python3-pip python3-setuptools-scm
 
-git config user.email "root@assetmanager.bsi.corp"
-
 python3 -m pip install --break-system-packages jetconf pyang
-python3 -m pip install --break-system-packages -e .
+python3 -m pip install --break-system-packages -r requirements.txt
 
 pushd utils/cert_gen
 #./gen_server_cert.sh assetmgt 172.16.15.1.82
