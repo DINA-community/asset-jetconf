@@ -31,8 +31,8 @@ fi
 apt-get update -qq
 DEBIAN_FRONTEND=noninteractive apt-get -y install libyang-tools git python3-pip python3-setuptools-scm
 
-python3 -m pip install --break-system-packages jetconf pyang
 python3 -m pip install --break-system-packages -r requirements.txt
+python3 -m pip install --break-system-packages -e .
 
 pushd utils/cert_gen
 #./gen_server_cert.sh assetmgt 172.16.15.1.82
