@@ -21,9 +21,9 @@ debug_confh = LogHelpers.create_module_dbg_logger(__name__)
 # ---------- User-defined handlers follow ----------
 
 
-node_pat = re.compile("node\[node-id=\"([0-9]+)\"\]")
+node_pat = re.compile(r"node\[node-id=\"([0-9]+)\"\]")
 
-network_pat = re.compile("network\[network-id=\"(L3[0-9]+)\"\]")
+network_pat = re.compile(r"network\[network-id=\"(L3[0-9]+)\"\]")
 
 class AssetMgtConfListHandler(ConfDataListHandler):
     
