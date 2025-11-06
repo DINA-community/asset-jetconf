@@ -27,6 +27,7 @@ dependencies = [
 ]
 
 [tool.setuptools_scm]
+fallback_version = "0.0.0"
 
 [project.urls]
 homepage = "https://github.com/DINA-community/asset-jetconf/"
@@ -35,7 +36,7 @@ documentation = "https://github.com/DINA-community/asset-jetconf/"
 "Bug Tracker" = "https://github.com/DINA-community/asset-jetconf/issues/"
 
 [build-system]
-requires = ["setuptools>=61", "setuptools-scm>=8"]
+requires = ["setuptools>=68", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
